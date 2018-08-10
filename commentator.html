@@ -9,6 +9,7 @@
         <link rel="import" href="components/sr-comp/component.html" />
         <link rel="import" href="components/sr-corner-clock/component.html" />
         <link rel="import" href="components/sr-arena/component.html" />
+        <link rel="import" href="components/sr-arena-corners/component.html" />
         <link rel="import" href="components/sr-arena-picker/component.html" />
 
         <style>
@@ -39,12 +40,10 @@
     </head>
 
     <body>
-        <sr-comp id="comp">
-            <sr-corner-clock id="error-clock"></sr-corner-clock>
-        </sr-comp>
+        <sr-comp id="comp"></sr-comp>
 
         <sr-arena-picker id="picker" hidden></sr-arena-picker>
-        <sr-arena id="arena" hidden></sr-arena>
+        <sr-arena-corners id="arena" hidden></sr-arena-corners>
 
         <script>
             var parseArguments = function() {
@@ -60,10 +59,6 @@
                 arena.hidden = false;
                 arena.arena = args.arena;
                 arena.comp = comp;
-
-                arena.$.corner0.addEventListener('match', function(e) {
-                    errorClock.match = e.detail;
-                });
             };
 
             document.addEventListener('sr-ready', function() {

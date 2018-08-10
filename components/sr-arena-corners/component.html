@@ -1,0 +1,67 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html" />
+
+<link rel="import" href="../sr-corner/component.html" />
+
+<polymer-element name="sr-arena-corners" attributes="arena">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                display: -webkit-flex;
+                flex-direction: column;
+                -webkit-flex-direction: column;
+            }
+
+            div {
+                display: flex;
+                display: -webkit-flex;
+                flex: 0 0 auto;
+                -webkit-flex: 0 0 auto;
+
+                height: 30%;
+            }
+
+            div > sr-corner {
+                flex: 1 1 auto;
+                -webkit-flex: 1 1 auto;
+            }
+        </style>
+
+        <div>
+            <template repeat="{{ corner in corners }}">
+                <sr-corner show="tla"></sr-corner>
+            </template>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            comp: null,
+            arena: null,
+            corners: null,
+            ready: function() {
+                // TODO: somehow need to run this logic _after_ we've completed
+                // the updating of the `comp` property.
+                var corners = this.shadowRoot.querySelectorAll('sr-corner');
+                for (var i = 0; i < corners.length; i++) {
+                    corners[i].corner = i;
+                    corners[i].arena = this.arena;
+                    corners[i].comp = this.comp;
+                }
+            },
+            _getValues: function(obj) {
+                var values = [];
+                for (var key in obj) {
+                    values.push(obj[key]);
+                }
+                return values;
+            },
+            compChanged: function() {
+                this.comp.api.getCorners(function(corners) {
+                    this.corners = this._getValues(corners);
+                }.bind(this));
+            }
+        });
+    </script>
+</polymer-element>
