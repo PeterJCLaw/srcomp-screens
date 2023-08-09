@@ -49,7 +49,7 @@
                         <template repeat="{{ corner in cornersList }}">
                             <td style="background-color: {{ arenas[arena].colour | arenaColour }}">
                                 <span style="color: {{ corners[corner].colour }}">
-                                    {{ match.arenas[arena].teams[corner] || '—' }}
+                                    {{ match.arenas[arena].teams_by_corner[corner] || '—' }}
                                 </span>
                             </td>
                         </template>
