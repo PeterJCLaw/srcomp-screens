@@ -149,7 +149,6 @@
                     // Remove existing entries, then rebuild
                     pages.children.array().forEach(child => {
                         if (child.tagName.toLowerCase() == 'sr-knockout-diagram') {
-                            console.log("Removing", child)
                             child.parentNode.removeChild(child);
                         }
                     });
