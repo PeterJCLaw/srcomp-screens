@@ -143,7 +143,7 @@
                     newDiagram.dataset.title = title;
                     newDiagram.dataset.websiteUrlSlug = 'knockout';
                     pages.appendChild(newDiagram);
-                }
+                };
 
                 comp.api.getKnockoutStructure(function(structure) {
                     structure.brackets.forEach(x => appendKnockoutsDiagram(x.display_name, x.name));
