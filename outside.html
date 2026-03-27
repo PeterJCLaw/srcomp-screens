@@ -145,9 +145,20 @@
                     pages.appendChild(newDiagram);
                 };
 
-                comp.api.getKnockoutStructure(function(structure) {
-                    structure.brackets.forEach(x => appendKnockoutsDiagram(x.display_name, x.name));
-                });
+                const updateKnockoutsDiagrams = function(structure) {
+                    // Remove existing entries, then rebuild
+                    pages.children.array().forEach(child => {
+                        if (child.tagName.toLowerCase() == 'sr-knockout-diagram') {
+                            console.log("Removing", child)
+                            child.parentNode.removeChild(child);
+                        }
+                    });
+                    structure.brackets.forEach(bracket => appendKnockoutsDiagram(bracket.display_name, bracket.name));
+                };
+
+                // Ideally we'd only use the stream, however older versions of the backends don't offer this event.
+                comp.stream.addEventListener('knockout-structure', e => updateKnockoutsDiagrams(e.detail));
+                comp.api.getKnockoutStructure(updateKnockoutsDiagrams);
 
                 var knockoutTime = undefined;
                 var noLeaderboardTime = undefined;
