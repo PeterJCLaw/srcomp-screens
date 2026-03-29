@@ -170,6 +170,18 @@
                     callback(response.rounds);
                 });
             },
+            getKnockoutStructure: function(callback) {
+                this._apiCall('/knockout/structure', function(response) {
+                    callback(response);
+                }, function(err) {
+                    // Compatibility fallback
+                    callback({
+                        'brackets': [
+                            {'name': null, 'display_name': "Knockouts"},
+                        ],
+                    });
+                });
+            },
             getTiebreaker: function(callback) {
                 this._apiCall('/tiebreaker', function(response) {
                     callback(response.tiebreaker, undefined);

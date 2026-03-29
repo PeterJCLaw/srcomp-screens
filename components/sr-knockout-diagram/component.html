@@ -8,7 +8,7 @@
                 font-size: 0.5em;
             }
 
-            #knockout {
+            .knockout-diagram {
                 display: flex;
                 display: -webkit-flex;
                 align-items: center;
@@ -44,7 +44,7 @@
             }
         </style>
 
-        <div id="knockout">
+        <div class="knockout-diagram">
             <template repeat="{{ round, i in rounds }}">
                 <div class="round">
                     <template repeat="{{ match in round }}">
@@ -131,6 +131,7 @@
 
         Polymer({
             comp: null,
+            bracket: null,
             arenas: undefined,
             corners: undefined,
             rounds: undefined,
@@ -153,6 +154,21 @@
                     this.corners = corners;
                     this.updateDiagram();
                 }.bind(this));
+            },
+            filterRounds: function(rounds) {
+                // Filter out rounds which don't match our given knockout
+                // bracket, including filtering out entire rounds which aren't
+                // from our bracket.
+                return rounds.map(round => {
+                    return round.filter(match => {
+                        // Rely on sr-comp-api wrapper's compatibility fallback
+                        // response to the structure of the knockouts setting
+                        // the bracket to `null` for older SRComp HTTP APIs
+                        // which don't provide the structure data and thus don't
+                        // have the knockout_bracket property.
+                        return match.knockout_bracket == this.bracket;
+                    })
+                }).filter(x => x.length > 0);
             },
             sliceRounds: function(rounds) {
                 const maxKnockoutRounds = this.comp.displayConfig.maxKnockoutRounds;
@@ -195,7 +211,11 @@
                         if (tiebreaker) {
                             rounds = [...rounds, [tiebreaker]];
                         }
-                        this.rounds = processKnockouts(this.sliceRounds(rounds));
+                        this.rounds = processKnockouts(
+                            this.sliceRounds(
+                                this.filterRounds(rounds),
+                            ),
+                        );
 
                         this.style.fontSize = Math.sqrt(5 / this.rounds.length) + 'em';
                     }.bind(this));

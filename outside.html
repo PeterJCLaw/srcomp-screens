@@ -117,11 +117,7 @@
                 data-website-url-slug="league"
                 data-needs-comp
             ></sr-scores>
-            <sr-knockout-diagram
-                data-title="Knockouts"
-                data-website-url-slug="knockout"
-                data-needs-comp
-            ></sr-knockout-diagram>
+            <!-- sr-knockout-diagram added dynamically inline below -->
         </core-pages>
 
         <sr-progress id="progress" progress="1">
@@ -132,11 +128,36 @@
 
         <script>
             document.addEventListener('sr-ready', function() {
+                const pages = document.querySelector('#pages');
+
                 var comp = document.querySelector('#comp');
                 var needsComp = document.querySelectorAll('[data-needs-comp]');
                 for (var i = 0; i < needsComp.length; i++) {
                     needsComp[i].comp = comp;
                 }
+
+                const appendKnockoutsDiagram = function(title, bracket) {
+                    const newDiagram = document.createElement('sr-knockout-diagram');
+                    newDiagram.comp = comp;
+                    newDiagram.bracket = bracket;
+                    newDiagram.dataset.title = title;
+                    newDiagram.dataset.websiteUrlSlug = 'knockout';
+                    pages.appendChild(newDiagram);
+                };
+
+                const updateKnockoutsDiagrams = function(structure) {
+                    // Remove existing entries, then rebuild
+                    pages.children.array().forEach(child => {
+                        if (child.tagName.toLowerCase() == 'sr-knockout-diagram') {
+                            child.parentNode.removeChild(child);
+                        }
+                    });
+                    structure.brackets.forEach(bracket => appendKnockoutsDiagram(bracket.display_name, bracket.name));
+                };
+
+                // Ideally we'd only use the stream, however older versions of the backends don't offer this event.
+                comp.stream.addEventListener('knockout-structure', e => updateKnockoutsDiagrams(e.detail));
+                comp.api.getKnockoutStructure(updateKnockoutsDiagrams);
 
                 var knockoutTime = undefined;
                 var noLeaderboardTime = undefined;
@@ -152,7 +173,6 @@
                     }
                 });
 
-                var pages = document.querySelector('#pages');
                 var progress = document.querySelector('#progress');
                 var progressTitle = document.querySelector('#progress-title');
                 var websiteUrl = document.querySelector('#website-url');
