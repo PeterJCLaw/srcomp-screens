@@ -92,7 +92,7 @@
                 <div>
                     <h2>{{ period.description }}</h2>
                     <p>Start: {{ period.startTime | formatTime }}</p>
-                    <p>End: {{ period.matches.last.times.slotEnd | formatTime }}</p>
+                    <p>End: {{ period.apparentEndTime | formatTime }}</p>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
                 // Find the first period which has not yet ended, it will be
                 // either the current one or the next one.
                 const now = new Date();
-                this.period = this.periods.find(p => now < p.endTime);
+                this.period = this.periods.find(p => now < p.apparentEndTime);
             }.bind(this);
 
             const parseMatch = function(match) {
@@ -194,9 +194,16 @@
                             ),
                         };
                     }
+                    // The "end_time" of a period is actually the last time a
+                    // which a match could *start*, so we need to come up with
+                    // our own better way to signal to livestream producers when
+                    // the matches will actually end.
+                    parsedPeriod.apparentEndTime = parsedPeriod.matches
+                        ? parsedPeriod.matches.last.times.slotEnd
+                        : parsedPeriod.maxEndTime;
                     return parsedPeriod;
                 });
-                parsedPeriods.sort((a, b) => a.endTime - b.endTime);
+                parsedPeriods.sort((a, b) => a.apparentEndTime - b.apparentEndTime);
                 return parsedPeriods;
             }
 
