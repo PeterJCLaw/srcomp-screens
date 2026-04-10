@@ -174,32 +174,37 @@
                 };
             };
 
+            const parsePeriods = function(periods, matches) {
+                const parsedPeriods = periods.map(p => {
+                    const parsedPeriod = {
+                        description: p.description,
+                        type: p.type,
+                        startTime: moment(p.start_time),
+                        endTime: moment(p.end_time),
+                        maxEndTime: moment(p.maxEnd_time),
+                    };
+                    if (p.matches) {
+                        parsedPeriod.matches = {
+                            first: parseMatch(
+                                matches.find(m => m.num == p.matches.first_num),
+                            ),
+                            last: parseMatch(
+                                matches.find(m => m.num == p.matches.last_num),
+                            ),
+                        };
+                    }
+                    return parsedPeriod;
+                });
+                parsedPeriods.sort((a, b) => a.endTime - b.endTime);
+                return parsedPeriods;
+            }
+
             const loadPeriods = function() {
                 this.comp.api.getMatches(function(matches) {
                     matches = matches.filter(m => m.arena == this.arena);
 
                     this.comp.api.getPeriods(function(periods) {
-                        this.periods = periods.map(p => {
-                            const parsed = {
-                                description: p.description,
-                                type: p.type,
-                                startTime: moment(p.start_time),
-                                endTime: moment(p.end_time),
-                                maxEndTime: moment(p.maxEnd_time),
-                            };
-                            if (p.matches) {
-                                parsed.matches = {
-                                    first: parseMatch(
-                                        matches.find(m => m.num == p.matches.first_num),
-                                    ),
-                                    last: parseMatch(
-                                        matches.find(m => m.num == p.matches.last_num),
-                                    ),
-                                };
-                            }
-                            return parsed;
-                        });
-                        this.periods.sort((a, b) => a.endTime - b.endTime);
+                        this.periods = parsePeriods(periods, matches);
 
                         updatePeriod();
                     }.bind(this));
