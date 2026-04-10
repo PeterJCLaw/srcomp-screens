@@ -26,6 +26,13 @@
                 margin: 0;
             }
 
+            #match-clocks {
+                text-align: left;
+            }
+            #match-clocks > div:first-child {
+                margin-bottom: 4em;
+            }
+
             #time {
                 flex: 0 0 auto;
                 -webkit-flex: 0 0 auto;
@@ -58,11 +65,17 @@
 
         <h1 id="title">Producer</h1>
 
-        <div>
-            <h2>Match {{ currentMatch.num }}</h2>
-            <sr-corner-clock id="current-match-clock"></sr-corner-clock>
-        </div>
+        <div id="match-clocks">
+            <div>
+                <h2>Match {{ currentMatch.num }}</h2>
+                <sr-corner-clock id="current-match-clock"></sr-corner-clock>
+            </div>
 
+            <div>
+                <h2>Match {{ nextMatch.num }}</h2>
+                <sr-corner-clock id="next-match-clock"></sr-corner-clock>
+            </div>
+        </div>
 
         <div id="time">
             <sr-clock></sr-clock>
@@ -78,6 +91,28 @@
 
             this.$.delay.comp = this.comp;
 
+            const updateMatches = function(matches) {
+                if (!matches.length) {
+                    this.currentMatch = null;
+                    this.nextMatch = null;
+                    return;
+                }
+
+                if (this.currentMatch == null) {
+                    this.currentMatch = matches[0];
+                    this.nextMatch = matches[1];
+                } else {
+                    const index = matches.findIndex(m => m.num == this.currentMatch.num);
+                    // The current match may have a start time in the past. If
+                    // that happens we'll not get it in the list of upcoming
+                    // matches, but we also don't want to un-set it.
+                    if (index >= 0) {
+                        this.currentMatch = matches[index];
+                    }
+                    this.nextMatch = matches[index + 1];
+                }
+            }.bind(this);
+
             this.comp.stream.addEventListener('match', function(e) {
                 var matches = e.detail.filter(function(match) {
                     return match.arena === this.arena;
@@ -87,30 +122,13 @@
                     this.currentMatch = matches[0];
                 } else {
                     this.currentMatch = null;
-
-                    this.comp.api.getUpcomingMatches(this.arena, function(matches) {
-                        // only update if we haven't since updated the match
-                        if (this.currentMatch == null && matches.length) {
-                            this.currentMatch = matches[0];
-                        }
-                    }.bind(this));
                 }
+
+                this.comp.api.getUpcomingMatches(this.arena, updateMatches);
             }.bind(this));
 
             this.comp.stream.addEventListener('knockouts', function() {
-                var updateMatch = function(matches) {
-                    // only update if it's the same match
-                    var newMatch = matches[0];
-                    if (this.currentMatch != null && newMatch != null && this.currentMatch.num == newMatch.num) {
-                        this.currentMatch = newMatch;
-                    }
-                }.bind(this);
-
-                if (this.currentMatch) {
-                    this.comp.api.getMatch(this.arena, this.currentMatch.num, updateMatch);
-                } else {
-                    this.comp.api.getUpcomingMatches(this.arena, updateMatch);
-                }
+                this.comp.api.getUpcomingMatches(this.arena, updateMatches);
             }.bind(this));
         };
         Polymer({
@@ -120,6 +138,10 @@
             currentMatch: undefined,
             currentMatchChanged: function() {
                 this.$['current-match-clock'].match = this.currentMatch;
+            },
+            nextMatch: undefined,
+            nextMatchChanged: function() {
+                this.$['next-match-clock'].match = this.nextMatch;
             }
         });
     </script>
