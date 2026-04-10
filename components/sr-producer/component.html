@@ -3,6 +3,7 @@
 <link rel="import" href="../sr-clock/component.html" />
 <link rel="import" href="../sr-corner-clock/component.html" />
 <link rel="import" href="../sr-delay/component.html" />
+<link rel="import" href="../sr-period/component.html" />
 
 <polymer-element name="sr-producer" attributes="arena comp">
     <template>
@@ -37,10 +38,6 @@
             }
             #match-clocks > div:first-child {
                 margin-bottom: 4em;
-            }
-
-            #period p {
-                font-size: 1.5em;
             }
 
             #time {
@@ -88,13 +85,7 @@
                 </div>
             </div>
 
-            <div id="period">
-                <div>
-                    <h2>{{ period.description }}</h2>
-                    <p>Start: {{ period.startTime | formatTime }}</p>
-                    <p>End: {{ period.apparentEndTime | formatTime }}</p>
-                </div>
-            </div>
+            <sr-period id="period"></sr-period>
         </div>
 
         <div id="time">
@@ -236,22 +227,9 @@
             nextMatchChanged: function() {
                 this.$['next-match-clock'].match = this.nextMatch;
             },
-            preciseTimeThresholdMinutes: 3,
-            formatTime: function(when) {
-                if (!when) {
-                    return null;
-                }
-                const now = new Date();
-                const threshold = moment.duration(this.preciseTimeThresholdMinutes * 60 * 1000);
-                const relative = moment.duration(when.diff(now));
-                if (relative > 0 && relative < threshold) {
-                    // Show more precision for close future times. Moment
-                    // doesn't support this natively, so use a plugin to
-                    // format it ourselves.
-                    return "in " + relative.format('m:ss', {trim: false});
-                } else {
-                    return relative.humanize(true);
-                }
+            period: undefined,
+            periodChanged: function() {
+                this.$.period.period = this.period;
             },
         });
     </script>
