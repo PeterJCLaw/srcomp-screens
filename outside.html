@@ -159,19 +159,24 @@
                 comp.stream.addEventListener('knockout-structure', e => updateKnockoutsDiagrams(e.detail));
                 comp.api.getKnockoutStructure(updateKnockoutsDiagrams);
 
-                var knockoutTime = undefined;
-                var noLeaderboardTime = undefined;
-                comp.api.getKnockoutMatches(function(matches) {
-                    if (matches.length > 0) {
+                const times = {
+                    knockout: undefined,
+                    noLeaderboard: undefined,
+                };
+                const updateTimes = function(knockoutRounds) {
+                    console.log('updateTimes', knockoutRounds)
+                    if (knockoutRounds.length > 0 && knockoutRounds[0].length > 0) {
+                        const firstMatch = knockoutRounds[0][0];
                         // show the knockouts from 1 hour before the first knockout match
-                        knockoutTime = moment(matches[0].times.slot.start).subtract(1, 'hours');
+                        times.knockout = moment(firstMatch.times.slot.start).subtract(1, 'hours');
                         // hide the leaderboard once the knockouts actually start
-                        noLeaderboardTime = moment(matches[0].times.game.start);
+                        times.noLeaderboard = moment(firstMatch.times.game.start);
                     } else {
-                        knockoutTime = undefined;
-                        noLeaderboardTime = undefined;
+                        times.knockout = undefined;
+                        times.noLeaderboard = undefined;
                     }
-                });
+                };
+                comp.stream.addEventListener('knockouts', e => updateTimes(e.detail));
 
                 var progress = document.querySelector('#progress');
                 var progressTitle = document.querySelector('#progress-title');
@@ -190,12 +195,12 @@
                         return false;
                     }
                     if (tagName == 'sr-knockout-diagram') {
-                        if (knockoutTime != null && moment().isBefore(knockoutTime)) {
+                        if (times.knockout != null && moment().isBefore(times.knockout)) {
                             return false;
                         }
                     }
                     if (tagName == 'sr-leaderboard') {
-                        if (noLeaderboardTime != null && moment().isAfter(noLeaderboardTime)) {
+                        if (times.noLeaderboard != null && moment().isAfter(times.noLeaderboard)) {
                             return false;
                         }
                     }
