@@ -217,6 +217,12 @@
                 this._apiCall(url, function(response) {
                     callback(response.matches);
                 });
+            },
+            getPeriods: function(callback) {
+                var url = ('/periods');
+                this._apiCall(url, function(response) {
+                    callback(response.periods);
+                });
             }
         });
     </script>
