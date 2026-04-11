@@ -132,7 +132,10 @@
                     var validCornersList = Object.keys(corners);
                     var proposedCornersList = this.comp.displayConfig.stagingCornersList || validCornersList;
 
-                    if (new Set(validCornersList).symmetricDifference(new Set(proposedCornersList)).size !== 0) {
+                    var mismatch = (validCornersList.length !== proposedCornersList.length) ||
+                        !validCornersList.every(elem => proposedCornersList.includes(elem));
+
+                    if (mismatch) {
                         console.warn("Corner list configuration mismatch with valid corners.");
                         console.warn("Valid corners are: ", validCornersList);
                         console.warn("Falling back to valid corners.");
