@@ -128,7 +128,19 @@
 
                 this.comp.api.getCorners(function(corners) {
                     this.corners = corners;
-                    this.cornersList = Object.keys(corners);
+
+                    var validCornersList = Object.keys(corners);
+                    var proposedCornersList = this.comp.displayConfig.stagingCornersList || validCornersList;
+
+                    if (new Set(validCornersList).symmetricDifference(new Set(proposedCornersList)).size !== 0) {
+                        console.warn("Corner list configuration mismatch with valid corners.");
+                        console.warn("Valid corners are: ", validCornersList);
+                        console.warn("Falling back to valid corners.");
+                        proposedCornersList = validCornersList;
+                    }
+
+                    this.cornersList = proposedCornersList;
+
                     this.updateSchedule();
                 }.bind(this));
 

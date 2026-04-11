@@ -19,7 +19,13 @@ Create a file called `config.json` based on `config.example.json`.
     // page then this would be ["sr-knockout-diagram"].
     "hideOutsidePages": [],
     // How many "rounds" to show on the knockouts page of the "outside" screen.
-    "maxKnockoutRounds": 5
+    "maxKnockoutRounds": 5,
+    // Used to control the corner columns as shown on the staging screen (useful
+    // if the table doesn't match the default ordering). If the set of corners
+    // doesn't match the set of corners configured in the compstate (usually
+    // `["0", "1", "2", "3"]`), a warning is printed to the browser console
+    // and the default corners are used.
+    "stagingCornersList": ["0", "3", "2", "1"]
   },
   "apiurl": "http://localhost/comp-api",
   "streamurl": "http://localhost/stream"
