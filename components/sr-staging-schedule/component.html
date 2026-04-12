@@ -32,12 +32,27 @@
 
         <table>
             <tr>
-                <th></th>
-                <th>Match Starts</th>
-                <th>Staging Opens</th>
+                <th rowspan="2"></th>
+                <th rowspan="2">Match Starts</th>
+                <th rowspan="2">Staging Opens</th>
                 <template repeat="{{ arena in arenasList }}">
                     <th></th>
-                    <th colspan="{{ cornersList.length }}" style="background-color: {{ arenas[arena].colour | arenaColour }}">{{ arenas[arena].display_name }}</th>
+                    <th colspan="{{ cornersList.length }}" style="background-color: {{ arenas[arena].colour | arenaColour }}">
+                        {{ arenas[arena].display_name }}
+                    </th>
+                </template>
+            </tr>
+
+            <tr>
+                <template repeat="{{ arena in arenasList }}">
+                    <th></th>
+                    <template repeat="{{ corner in cornersList }}">
+                        <th style="background-color: {{ arenas[arena].colour | arenaColour }}">
+                            <span style="color: {{ corners[corner].colour }}">
+                                {{ corners[corner].number }}
+                            </span>
+                        </th>
+                    </template>
                 </template>
             </tr>
 
